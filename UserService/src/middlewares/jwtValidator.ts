@@ -44,7 +44,7 @@ export class jwtValidator {
         console.log(authHeader)
         if (authHeader && authHeader.startsWith('Bearer ')) {
         token = authHeader.split(' ')[1];
-        console.log(token)
+        console.log("aca",token)
         } else if (req.cookies && req.cookies.token) {
         token = req.cookies.token;
         }
@@ -56,7 +56,7 @@ export class jwtValidator {
         console.log(token)
 
         const decoded = jwt.verify(token, SECRET_KEY!) as JwtPayloadCustom;
-        const result = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
+        const result = await pool.query('SELECT * FROM usuarios WHERE id = $1', [decoded.userId]);
         if (result.rows.length === 0) {
         res.status(401).json('Token inválido');
         return;

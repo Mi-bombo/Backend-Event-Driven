@@ -42,7 +42,7 @@ export class userControllers {
     }
 
     registerUserController = async (req: Request, res: Response): Promise<Response | void> => {
-        const { nombre, email, password, role = 'supervisor' } = req.body;
+        const { nombre, email, password, role = 'chofer' } = req.body;
         try {
             console.log(nombre, email, password)
             await this.services.registerUserService(nombre, email, password, role);

@@ -40,7 +40,7 @@ export class usersService extends authRepository {
     }
 
 
-    async registerUserService(nombre: string, email: string, password: string, role = "supervisor"): Promise<void> {
+    async registerUserService(nombre: string, email: string, password: string, role = "chofer"): Promise<void> {
         if (!nombre || !email || !password || !role) {
             throw new Error("Todos los datos son requeridos")
         }
@@ -58,11 +58,10 @@ export class usersService extends authRepository {
         const roleId = roleResult.rows[0].id;
         const salt = await genSalt(10);
         const passwordHash = await hash(password, salt);
-        const userId = uuidv4();
-        await pool.query(`INSERT INTO users (id, nombre, email, password_hash, role_id)
-            VALUES ($1, $2, $3, $4, $5)`,
-            [userId, nombre, email, passwordHash, roleId]
+        await pool.query(`INSERT INTO usuarios (nombre, email, password_hash, rol_id)
+            VALUES ($1, $2, $3, $4)`,
+            [nombre, email, passwordHash, roleId]
         );
-        sendEvent('user_registered', { userId, nombre, email, role });
+        sendEvent('user_registered', { nombre, email, role });
     }
 }

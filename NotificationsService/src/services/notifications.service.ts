@@ -46,7 +46,7 @@ export class NotificationsService extends notifRepository {
             throw new Error("Usuario no encontrado");
         }
 
-        if(user.role_id === "17c0fc88-e08f-42fe-8d46-7e077968a319"){
+        if(user.rol_id === 2){
             throw new Error("No tienes permisos para enviar alertas");
         }
 
