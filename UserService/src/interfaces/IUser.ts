@@ -10,17 +10,10 @@ export interface IUbication {
 }
 
 export interface IUser extends Token, IUbication{
-    id: string;
+    id: number;
     nombre: string;
     email: string;
     password_hash: string;
-    role_id:string;
-    estado_cuenta?:string;
-    verificado_email?:boolean;
+    rol_id: number;
     fecha_creacion?: Date;
-    fecha_actualizacion?: Date;
-    two_factor_enabled?: boolean;
-    dni?: string;
-    sexo?: string;
-    location_id?: number;
 }

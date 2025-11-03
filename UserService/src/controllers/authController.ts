@@ -7,31 +7,16 @@ export class userControllers {
     this.services = new usersService();
   }
 
-  loginUserController = async (
-    req: Request,
-    res: Response
-  ): Promise<Response | void> => {
-    const platform: string = req.get("x-platform") ?? "web";
-    try {
-      const { email, password } = req.body;
-      const userData = await this.services.loginUserService(email, password);
-      if (!userData) {
-        res.status(400).json({ message: "Error al iniciar sesión" });
-        return;
-      }
-      if (userData.two_factor_enabled) {
-        if (!userData.id) {
-          return res.status(500).json({
-            error: "Error del servidor: userId no generado para 2FA",
-          });
-        }
+    loginUserController = async (req: Request, res: Response): Promise<Response | void> => {
+        const platform: string = req.get('x-platform') ?? 'web';
+        try {
 
-        return res.status(200).json({
-          message: "Se requiere código 2FA",
-          twoFactorRequired: true,
-          userId: userData.id,
-        });
-      }
+            const { email, password } = req.body;
+            const userData = await this.services.loginUserService(email, password);
+            if (!userData) {
+                res.status(400).json({ message: 'Error al iniciar sesión' });
+                return
+            }
 
       const { token, ...userWithoutToken } = userData;
 
@@ -49,28 +34,24 @@ export class userControllers {
         });
       }
 
-      return res.status(201).json(responseData);
-    } catch (error: any) {
-      console.error("Error en el inicio de sesión:", error.message);
-      res
-        .status(error.status || 500)
-        .json({ error: error.message || "Error del servidor" });
+            return res.status(201).json(responseData);
+        } catch (error: any) {
+            console.error('Error en el inicio de sesión:', error.message);
+            res.status(error.status || 500).json({ error: error.message || 'Error del servidor' });
+        }
     }
-  };
 
-  registerUserController = async (
-    req: Request,
-    res: Response
-  ): Promise<Response | void> => {
-    const { nombre, email, password, role = "supervisor" } = req.body;
-    try {
-      console.log(nombre, email, password);
-      console.log("aca");
-      await this.services.registerUserService(nombre, email, password, role);
-      return res.status(201).json({ message: "Usuario registrado con éxito." });
-    } catch (error: any) {
-      console.error("Error al registrar el usuario:", error.message);
-      return res.status(500).json({ message: "Error interno del servidor" });
+    registerUserController = async (req: Request, res: Response): Promise<Response | void> => {
+        const { nombre, email, password, role = 'chofer' } = req.body;
+        try {
+            console.log(nombre, email, password)
+            await this.services.registerUserService(nombre, email, password, role);
+            console.log("aca")
+            return res.status(201).json({ message: 'Usuario registrado con éxito.' });
+        } catch (error: any) {
+            console.error('Error al registrar el usuario:', error.message);
+            return res.status(500).json({ message: 'Error interno del servidor' });
+        }
     }
   };
 

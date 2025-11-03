@@ -10,19 +10,21 @@ export class authRepository {
   }
 
   getUserForId = async (id: string): Promise<IUser | null> => {
-    const result = await pool.query(`SELECT * FROM users WHERE id = $1`, [id]);
+    const result = await pool.query(`SELECT * FROM usuarios WHERE id = $1`, [
+      id,
+    ]);
     return result.rows[0] || null;
   };
 
   getUserForEmail = async (email: string): Promise<IUser | null> => {
-    const result = await pool.query(`SELECT * FROM users WHERE email = $1`, [
+    const result = await pool.query(`SELECT * FROM usuarios WHERE email = $1`, [
       email,
     ]);
     return result.rows[0] || null;
   };
 
   deleteUserById = async (id: string): Promise<void> => {
-    await this.generalQueryRepo.deleteItemById("users", id);
+    await this.generalQueryRepo.deleteItemById("usuarios", id);
   };
 
   getItemById = async (id: string | number, algo: string): Promise<any> => {
