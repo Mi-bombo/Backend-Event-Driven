@@ -40,7 +40,7 @@ export class usersService extends authRepository {
     }
 
 
-    async registerUserService(nombre: string, email: string, password: string, role = "ciudadano"): Promise<void> {
+    async registerUserService(nombre: string, email: string, password: string, role = "supervisor"): Promise<void> {
         if (!nombre || !email || !password || !role) {
             throw new Error("Todos los datos son requeridos")
         }

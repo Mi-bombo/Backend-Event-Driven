@@ -15,12 +15,6 @@ export interface IUser extends Token, IUbication{
     email: string;
     password_hash: string;
     role_id:string;
-    estado_cuenta?:string;
-    verificado_email?:boolean;
     fecha_creacion?: Date;
     fecha_actualizacion?: Date;
-    two_factor_enabled?: boolean;
-    dni?: string;
-    sexo?: string;
-    location_id?: number;
 }

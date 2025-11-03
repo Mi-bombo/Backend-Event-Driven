@@ -17,19 +17,6 @@ export class userControllers {
                 res.status(400).json({ message: 'Error al iniciar sesión' });
                 return
             }
-            if (userData.two_factor_enabled) {
-                if (!userData.id) {
-                    return res.status(500).json({
-                        error: 'Error del servidor: userId no generado para 2FA',
-                    });
-                }
-
-                return res.status(200).json({
-                    message: 'Se requiere código 2FA',
-                    twoFactorRequired: true,
-                    userId: userData.id,
-                });
-            }
 
             const { token, ...userWithoutToken } = userData
 
@@ -55,7 +42,7 @@ export class userControllers {
     }
 
     registerUserController = async (req: Request, res: Response): Promise<Response | void> => {
-        const { nombre, email, password, role = 'ciudadano' } = req.body;
+        const { nombre, email, password, role = 'supervisor' } = req.body;
         try {
             console.log(nombre, email, password)
             await this.services.registerUserService(nombre, email, password, role);
