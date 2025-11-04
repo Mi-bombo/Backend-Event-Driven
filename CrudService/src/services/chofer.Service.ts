@@ -1,12 +1,18 @@
 import { choferRepository } from "../repositories/choferRepository";
 
+import { getUserIdFromToken } from "../utils/getUserIdFromToken";
+
 export class ChoferService {
     choferRepo: choferRepository;
     constructor() {
         this.choferRepo = new choferRepository();
     }
-     async getMisTurnos(id_user: number) {
-        if (!id_user) throw new Error("Falta el ID del chofer.");
-        return await this.choferRepo.getMisTurnos(id_user);
+     async getMisTurnos(token: string) {
+         if (!token) {
+            throw new Error("Token no enviado");
+        }
+        const id = getUserIdFromToken(token);
+
+        return await this.choferRepo.getMisTurnos(id);
     }
 }

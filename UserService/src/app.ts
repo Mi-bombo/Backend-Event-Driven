@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser'
 import { PORT } from './env/env'
 import { connectProducer } from './kafka/producer'
 import { authUserRoute } from './routes/userRoute'
+import { startKafkaSSEConsumer } from './kafka/consumer'
 
 const app = express()
 
@@ -21,5 +22,6 @@ app.use('/auth', authUserRoute)
 
 app.listen(PORT, () => {
     connectProducer()
+    startKafkaSSEConsumer()
     console.log(`Server corriendo en el puerto: ${PORT}🚀`)
 })

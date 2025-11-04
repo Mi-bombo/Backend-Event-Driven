@@ -1,23 +1,29 @@
-import { pool } from "../db/db.js";
+import { pool } from "../db/db";
 
 export class turnoRepository {
- 
+
+
+  async getTurnoById(id_turno: number) {
+    const { rows } = await pool.query(`SELECT turno FROM turnos WHERE id_turno = $1`, [id_turno]);
+    return rows[0] || null;
+}
+
   //! Supervisor ve todos los turnos asignados a los choferes
   async getAllTurnosAsignados() {
     const { rows } = await pool.query(`
       SELECT 
         tpd.id,
-        u.id_user,
+        u.id AS id_chofer,
         u.nombre AS nombre_chofer,
         t.turno AS nombre_turno,
         tpd.dia
       FROM turno_por_dia tpd
-      JOIN turno t ON tpd.id_turno = t.id_turno
-      JOIN usuario u ON tpd.id_user = u.id_user
+      JOIN turnos t ON tpd.id_turno = t.id_turno
+      JOIN usuarios u ON tpd.id_user = u.id
       WHERE u.rol_id = 2 -- chofer
       ORDER BY tpd.dia, u.nombre;
     `);
-    return rows;
+    return rows || [];
   }
 
   //! Crear turno asignado a chofer

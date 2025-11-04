@@ -1,12 +1,20 @@
 import { supervisorRepository } from "../repositories/supervisorRepository";
 import { turnoRepository } from "../repositories/turnoRepository";
+import { getRoleIdFromToken, getUserIdFromToken } from "../utils/getUserIdFromToken";
+import { authRepository } from "../repositories/authRepository";
 
-class supervisorService {
+import jwt from "jsonwebtoken";
+import { SECRET_KEY } from "../env/env";
+import { sendEvent } from "../kafka/producer";
+
+export class supervisorService {
     supervisorRepository: supervisorRepository;
     turnoRepository: turnoRepository;
+    authRepository: authRepository;
     constructor() {
         this.supervisorRepository = new supervisorRepository();
         this.turnoRepository = new turnoRepository();
+        this.authRepository = new authRepository();
     }
   //! --- CHOFERES ---
 
@@ -51,30 +59,69 @@ async getAllChoferes() {
   }
 
   //! --- TURNOS ---
-  async getAllTurnosAsignados() {
+  async getAllTurnosAsignados(token: string) {
+    const id = getUserIdFromToken(token);
+    const user = await this.authRepository.getUserForId(id);
+    console.log(user);
+    if(user!.rol_id !== 1){
+      throw new Error("No tienes permisos para ver los turnos asignados.");
+    }
+
     return await this.turnoRepository.getAllTurnosAsignados();
   }
 
-  async createTurnoPorDia(id_user: number, id_turno: number, dia: string) {
-    if (!id_user || !id_turno || !dia)
-      throw new Error("Faltan datos para asignar el turno.");
-    return await this.turnoRepository.createTurnoPorDia(id_user, id_turno, dia);
-  }
+    async createTurnoPorDia(id_user: number, id_turno: number, dia: string, token:string) {
+      if(!token){
+        throw new Error("El usuario no está autenticado");
+      }
+      if (!id_user || !id_turno || !dia)
+        throw new Error("Faltan datos para asignar el turno.");
+      const id = getUserIdFromToken(token);
+      const user = await this.authRepository.getUserForId(id);
+      if(user!.rol_id !== 1){
+        throw new Error("No tienes permisos para crear un turno para el usuario.");
+      }
 
-  async updateTurnoChofer(id_user: number, dia: string, id_turno: number) {
+      const result = await this.turnoRepository.createTurnoPorDia(id_user, id_turno, dia);
+      if (!result) throw new Error("No se pudo crear el turno.");
+      const turno = await this.turnoRepository.getTurnoById(result.id_turno);
+      sendEvent("turno-creado", { email: user?.email, id_user, dia, id_turno, turno });
+      return result;
+    }
+
+  async updateTurnoChofer(id_user: number, dia: string, id_turno: number, token:string) {
+    if(!token){
+      throw new Error("El usuario no está autenticado");
+    }
     if (!id_user || !dia || !id_turno)
       throw new Error("Faltan datos para actualizar el turno del chofer.");
+
+    const id = getUserIdFromToken(token);
+    const user = await this.authRepository.getUserForId(id);
+    if(user!.rol_id !== 1){
+      throw new Error("No tienes permisos para editar los turnos.");
+    }
     const turnoActualizado = await this.turnoRepository.updateTurnoChofer(id_user, dia, id_turno);
     if (!turnoActualizado) throw new Error("No se encontró el turno para actualizar.");
+
+    sendEvent("turno-actualizado", { email: user?.email, id_user, dia, id_turno, turno: turnoActualizado });
     return turnoActualizado;
   }
 
-  async deleteTurnoPorDia(id: number) {
+  async deleteTurnoPorDia(id: number, token:string) {
+    if(!token){
+      throw new Error("El usuario no está autenticado");
+    }
     if (!id) throw new Error("El ID del turno asignado es obligatorio.");
+
+    const idUser = getUserIdFromToken(token);
+    const user = await this.authRepository.getUserForId(idUser);
+    if(user!.rol_id !== 1){
+      throw new Error("No tienes permisos para borrar un turno.");
+    }
     const turnoEliminado = await this.turnoRepository.deleteTurnoPorDia(id);
     if (!turnoEliminado) throw new Error("No se encontró el turno para eliminar.");
     return turnoEliminado;
   }
 }
 
-export default new supervisorService();

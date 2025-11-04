@@ -1,4 +1,4 @@
-import { pool } from "../db/db.js";
+import { pool } from "../db/db";
 
 export class choferRepository {
 
@@ -10,12 +10,12 @@ export class choferRepository {
         t.turno AS nombre_turno,
         tpd.dia
       FROM turno_por_dia tpd
-      JOIN turno t ON tpd.id_turno = t.id_turno
-      JOIN usuario u ON tpd.id_user = u.id_user
-      WHERE u.id_user = $1 AND u.rol_id = 2
+      JOIN turnos t ON tpd.id_turno = t.id_turno
+      JOIN usuarios u ON tpd.id_user = u.id
+      WHERE u.id = $1 AND u.rol_id = 2
       ORDER BY tpd.dia;
     `, [id_user]);
-    return rows;
+    return rows || [];
   }
 }
 

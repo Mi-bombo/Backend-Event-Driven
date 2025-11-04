@@ -9,7 +9,7 @@ export class authRepository {
         this.generalQueryRepo = new generalQueryRepository();
     }
 
-    getUserForId = async (id: string): Promise<IUser | null> => {
+    getUserForId = async (id: number): Promise<IUser | null> => {
         const result = await pool.query(`SELECT * FROM usuarios WHERE id = $1`, [id]);
         return result.rows[0] || null;
     };
