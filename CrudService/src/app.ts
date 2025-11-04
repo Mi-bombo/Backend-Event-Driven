@@ -2,6 +2,8 @@ import express from 'express'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import cors from 'cors'
+import { PORT } from './env/env'
+import { connectProducer } from './kafka/producer'
 
 const app = express()
 
@@ -12,6 +14,7 @@ app.use(helmet())
 
 
 
-app.listen(3000, () => {
-    console.log(`Server corriendo en el puerto: 3000🚀`)
+app.listen(PORT, () => {
+    connectProducer()
+    console.log(`Server corriendo en el puerto: ${PORT}🚀`)
 })
