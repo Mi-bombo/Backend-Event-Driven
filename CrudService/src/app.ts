@@ -4,6 +4,9 @@ import morgan from 'morgan'
 import cors from 'cors'
 import { PORT } from './env/env'
 import { connectProducer } from './kafka/producer'
+import { choferRouter } from './routes/choferRoute'
+import { supervisorRouter } from './routes/supervisorRoute'
+
 
 const app = express()
 
@@ -12,7 +15,8 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(helmet())
 
-
+app.use('/chofer', choferRouter)
+app.use('/supervisor', supervisorRouter)
 
 app.listen(PORT, () => {
     connectProducer()

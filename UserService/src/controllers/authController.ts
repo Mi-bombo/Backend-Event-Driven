@@ -1,5 +1,6 @@
 import { usersService } from "../services/user.service";
 import { Request, Response } from "express";
+import { initSSE } from "../services/sse.Service";
 
 export class userControllers {
     private services: usersService;
@@ -70,6 +71,10 @@ export class userControllers {
         } catch (error) {
             res.status(500).json({ message: "Error al cerrar sesión" });
         }
+    }
+
+     sseConnect = async (req: Request, res: Response): Promise<void> => {
+        initSSE(req, res);
     }
 
 }
