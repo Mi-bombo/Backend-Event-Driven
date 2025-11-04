@@ -1,6 +1,7 @@
 import { token } from "morgan";
 import { supervisorService } from "../services/supervisor.Service";
 import { Request, Response } from "express";
+import { create } from "domain";
 
 
 export class supervisorController {
@@ -69,4 +70,67 @@ export class supervisorController {
             res.status(500).json({ error: error.message || "Error al eliminar el turno." });
         }
     }
+
+    //! ========== CHOFERES CRUD ==========
+
+    //! Crear chofer
+    createChofer = async (req: Request, res: Response): Promise<Response | void> => {
+        try {
+            const { nombre, email, password, rol_id } = req.body;
+            const result = await this.supervisorService.createChofer(nombre, email, password, rol_id);
+            return res.status(201).json(result);
+        } catch (error: any) {
+            console.error(error);
+            res.status(500).json({ error: error.message || "Error al crear el chofer." });
+        }
+    }
+
+    //! Obtener todos los choferes
+    getAllChoferes = async (req: Request, res: Response): Promise<Response | void> => {
+        try {
+            const result = await this.supervisorService.getAllChoferes();
+            return res.status(200).json(result);
+        } catch (error: any) {
+            console.error(error);
+            res.status(500).json({ error: error.message || "Error al obtener los choferes." });
+        }
+    }
+
+    //! Obtener chofer por ID
+    getChoferById = async (req: Request, res: Response): Promise<Response | void> => {
+        try {
+            const { id } = req.params;
+            const result = await this.supervisorService.getChoferById(Number(id));
+            return res.status(200).json(result);
+        } catch (error: any) {
+            console.error(error);
+            res.status(500).json({ error: error.message || "Error al obtener el chofer." });
+        }
+    }
+
+    //! Actualizar chofer
+    updateChofer = async (req: Request, res: Response): Promise<Response | void> => {
+        try {
+            const { id } = req.params;
+            const { nombre, email, password, rol_id } = req.body;
+            const result = await this.supervisorService.updateChofer(Number(id), nombre, email, password, rol_id);
+            return res.status(200).json(result);
+        } catch (error: any) {
+            console.error(error);
+            res.status(500).json({ error: error.message || "Error al actualizar el chofer." });
+        }
+    }
+
+    //! Eliminar chofer
+    deleteChofer = async (req: Request, res: Response): Promise<Response | void> => {
+        try {
+            const { id } = req.params;
+            const result = await this.supervisorService.deleteChofer(Number(id));
+            return res.status(200).json(result);
+        } catch (error: any) {
+            console.error(error);
+            res.status(500).json({ error: error.message || "Error al eliminar el chofer." });
+        }
+    }
 }
+
