@@ -106,10 +106,18 @@ async getAllChoferes() {
 
   if (user!.rol_id !== 1) throw new Error("No tienes permisos para editar los turnos.");
 
+  const turnoAsignado = await this.turnoRepository.getTurnoPorDiaById(id);
+  if (!turnoAsignado) throw new Error("No se encontró el turno asignado.");
+
   const turnoActualizado = await this.turnoRepository.updateTurnoChofer(id, id_turno, dia);
   if (!turnoActualizado) throw new Error("No se encontró el turno para actualizar.");
 
-  sendEvent("turno-actualizado", { email: user?.email, id_user: user?.id, dia, id_turno });
+  sendEvent("turno-actualizado", {
+    id_user: turnoAsignado.id_user,
+    dia,
+    id_turno,
+  });
+
   return turnoActualizado;
 }
 

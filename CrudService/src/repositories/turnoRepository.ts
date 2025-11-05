@@ -60,5 +60,14 @@ export class turnoRepository {
     `, [id]);
     return rows[0] || null;
   }
+
+  async getTurnoPorDiaById(id: number) {
+  const { rows } = await pool.query(
+    `SELECT * FROM turno_por_dia WHERE id = $1;`,
+    [id]
+  );
+  return rows[0] || null;
+}
+
 }
 
