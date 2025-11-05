@@ -70,24 +70,36 @@ async getAllChoferes() {
     return await this.turnoRepository.getAllTurnosAsignados();
   }
 
-    async createTurnoPorDia(id_user: number, id_turno: number, dia: string, token:string) {
-      if(!token){
-        throw new Error("El usuario no está autenticado");
-      }
-      if (!id_user || !id_turno || !dia)
-        throw new Error("Faltan datos para asignar el turno.");
-      const id = getUserIdFromToken(token);
-      const user = await this.authRepository.getUserForId(id);
-      if(user!.rol_id !== 1){
-        throw new Error("No tienes permisos para crear un turno para el usuario.");
-      }
+    async createTurnoPorDia(id_user: number, id_turno: number, dia: string, token: string) {
+    if (!token) throw new Error("El usuario no está autenticado");
+    if (!id_user || !id_turno || !dia) throw new Error("Faltan datos para asignar el turno.");
 
-      const result = await this.turnoRepository.createTurnoPorDia(id_user, id_turno, dia);
-      if (!result) throw new Error("No se pudo crear el turno.");
-      const turno = await this.turnoRepository.getTurnoById(result.id_turno);
-      sendEvent("turno-creado", { email: user?.email, id_user, dia, id_turno, turno });
-      return result;
-    }
+    // Obtener datos del usuario que realiza la acción
+    const id = getUserIdFromToken(token);
+    const user = await this.authRepository.getUserForId(id);
+    if (!user || user.rol_id !== 1) throw new Error("No tienes permisos para crear un turno.");
+
+    // ✅ Guardar el turno en BD
+    const nuevoTurno = await this.turnoRepository.createTurnoPorDia(id_user, id_turno, dia);
+
+    // Obtener datos del chofer destinatario
+    const chofer = await this.authRepository.getUserForId(id_user);
+    if (!chofer) throw new Error("El chofer destinatario no existe.");
+
+    // Preparar payload
+    const payload = {
+        email: chofer.email,
+        id_user: chofer.id,
+        dia: nuevoTurno.dia,
+        id_turno: nuevoTurno.id_turno,
+    };
+
+    // Enviar SSE al chofer
+    sendEvent("turno-creado", payload);
+
+    return nuevoTurno;
+}
+
 
   async updateTurnoChofer(id_user: number, dia: string, id_turno: number, token:string) {
     if(!token){

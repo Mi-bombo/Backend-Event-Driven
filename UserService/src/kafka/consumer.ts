@@ -18,7 +18,11 @@ async function createConsumer(topics: string[], groupId: string) {
 
       try {
         const data = JSON.parse(value);
-        const userId = data.id_user;
+        const userId = String(data.id_user); // 👈 asegurar string
+        sendSSE(userId, "turno-creado", data);
+        console.log(data)
+        console.log(topic)
+        console.log(userId)
 
         if (topic === "turno-creado") {
           sendSSE(userId, "turno-creado", data);

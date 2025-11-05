@@ -11,7 +11,11 @@ import { notifRouter } from './routes/notifRouter'
 const app = express()
 
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+    origin: 'http://127.0.0.1:5500',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+}))
 app.use(morgan('dev'))
 app.use(cookieParser())
 

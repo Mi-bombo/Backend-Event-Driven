@@ -69,4 +69,17 @@ export class supervisorController {
             res.status(500).json({ error: error.message || "Error al eliminar el turno." });
         }
     }
+
+    getAllChoferes = async (req: Request, res: Response): Promise<Response | void> => {
+        try {
+            const authHeader = req.headers['authorization'];
+            const token = authHeader?.split(' ')[1];
+            if (!token) return res.status(401).json({ error: "Token no enviado." });
+            const result = await this.supervisorService.getAllChoferes();
+            return res.status(200).json(result);
+        } catch (error: any) {
+            console.error(error);
+            res.status(500).json({ error: error.message || "Error al obtener los choferes." });
+        }
+    }
 }
