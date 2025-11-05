@@ -70,43 +70,57 @@ async getAllChoferes() {
     return await this.turnoRepository.getAllTurnosAsignados();
   }
 
-    async createTurnoPorDia(id_user: number, id_turno: number, dia: string, token:string) {
-      if(!token){
-        throw new Error("El usuario no está autenticado");
-      }
-      if (!id_user || !id_turno || !dia)
-        throw new Error("Faltan datos para asignar el turno.");
-      const id = getUserIdFromToken(token);
-      const user = await this.authRepository.getUserForId(id);
-      if(user!.rol_id !== 1){
-        throw new Error("No tienes permisos para crear un turno para el usuario.");
-      }
-
-      const result = await this.turnoRepository.createTurnoPorDia(id_user, id_turno, dia);
-      if (!result) throw new Error("No se pudo crear el turno.");
-      const turno = await this.turnoRepository.getTurnoById(result.id_turno);
-      sendEvent("turno-creado", { email: user?.email, id_user, dia, id_turno, turno });
-      return result;
-    }
-
-  async updateTurnoChofer(id_user: number, dia: string, id_turno: number, token:string) {
-    if(!token){
-      throw new Error("El usuario no está autenticado");
-    }
-    if (!id_user || !dia || !id_turno)
-      throw new Error("Faltan datos para actualizar el turno del chofer.");
+    async createTurnoPorDia(id_user: number, id_turno: number, dia: string, token: string) {
+    if (!token) throw new Error("El usuario no está autenticado");
+    if (!id_user || !id_turno || !dia) throw new Error("Faltan datos para asignar el turno.");
 
     const id = getUserIdFromToken(token);
     const user = await this.authRepository.getUserForId(id);
-    if(user!.rol_id !== 1){
-      throw new Error("No tienes permisos para editar los turnos.");
-    }
-    const turnoActualizado = await this.turnoRepository.updateTurnoChofer(id_user, dia, id_turno);
-    if (!turnoActualizado) throw new Error("No se encontró el turno para actualizar.");
+    if (!user || user.rol_id !== 1) throw new Error("No tienes permisos para crear un turno.");
 
-    sendEvent("turno-actualizado", { email: user?.email, id_user, dia, id_turno, turno: turnoActualizado });
-    return turnoActualizado;
-  }
+    const nuevoTurno = await this.turnoRepository.createTurnoPorDia(id_user, id_turno, dia);
+
+    const chofer = await this.authRepository.getUserForId(id_user);
+    if (!chofer) throw new Error("El chofer destinatario no existe.");
+
+    const payload = {
+        email: chofer.email,
+        id_user: chofer.id,
+        dia: nuevoTurno.dia,
+        id_turno: nuevoTurno.id_turno,
+    };
+
+    // Enviar SSE al chofer
+    sendEvent("turno-creado", payload);
+
+    return nuevoTurno;
+}
+
+
+  async updateTurnoChofer(id: number, id_turno: number, dia: string, token: string) {
+  if (!token) throw new Error("El usuario no está autenticado");
+  if (!dia || !id_turno) throw new Error("Faltan datos para actualizar el turno del chofer.");
+
+  const idUsuario = getUserIdFromToken(token);
+  const user = await this.authRepository.getUserForId(idUsuario);
+
+  if (user!.rol_id !== 1) throw new Error("No tienes permisos para editar los turnos.");
+
+  const turnoAsignado = await this.turnoRepository.getTurnoPorDiaById(id);
+  if (!turnoAsignado) throw new Error("No se encontró el turno asignado.");
+
+  const turnoActualizado = await this.turnoRepository.updateTurnoChofer(id, id_turno, dia);
+  if (!turnoActualizado) throw new Error("No se encontró el turno para actualizar.");
+
+  sendEvent("turno-actualizado", {
+    id_user: turnoAsignado.id_user,
+    dia,
+    id_turno,
+  });
+
+  return turnoActualizado;
+}
+
 
   async deleteTurnoPorDia(id: number, token:string) {
     if(!token){
