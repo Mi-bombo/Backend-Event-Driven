@@ -8,3 +8,9 @@ supervisorRouter.post("/asignar-turno/:id", supervisorCtrl.createTurnoPorDia);
 supervisorRouter.put("/actualizar-turno/:id", supervisorCtrl.updateTurnoChofer);
 supervisorRouter.delete("/eliminar-turno/:id", supervisorCtrl.deleteTurnoPorDia);
 supervisorRouter.get("/choferes", supervisorCtrl.getAllChoferes);
+
+//CRUD de choferes por el supervisor
+supervisorRouter.post("/crear-chofer", supervisorCtrl.createChofer);
+supervisorRouter.get("/chofer/:id", supervisorCtrl.getChoferById);
+supervisorRouter.put("/actualizar-chofer/:id", supervisorCtrl.updateChofer);
+supervisorRouter.delete("/eliminar-chofer/:id", supervisorCtrl.deleteChofer);

@@ -6,6 +6,7 @@ import { authRepository } from "../repositories/authRepository";
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "../env/env";
 import { sendEvent } from "../kafka/producer";
+import { hash, genSalt } from "bcrypt";
 
 export class supervisorService {
     supervisorRepository: supervisorRepository;
@@ -33,7 +34,12 @@ async getAllChoferes() {
   async createChofer(nombre: string, email: string, password: string, rol_id: number) {
     if (!nombre || !email || !password || !rol_id)
       throw new Error("Faltan datos para crear el chofer.");
-    return await this.supervisorRepository.createChofer(nombre, email, password, rol_id);
+    
+    // Hashear la contraseña antes de guardar
+    const salt = await genSalt(10);
+    const hashedPassword = await hash(password, salt);
+    
+    return await this.supervisorRepository.createChofer(nombre, email, hashedPassword, rol_id);
   }
 
   async updateChofer(
@@ -44,10 +50,18 @@ async getAllChoferes() {
     rol_id?: number
   ) {
     if (!id_user) throw new Error("El ID del chofer es obligatorio.");
+    
+    // Si se proporciona una nueva contraseña, hashearla
+    let hashedPassword = password;
+    if (password) {
+      const salt = await genSalt(10);
+      hashedPassword = await hash(password, salt);
+    }
+    
     return await this.supervisorRepository.updateChofer(
       nombre!,
       email!,
-      password!,
+      hashedPassword!,
       rol_id!,
       id_user
     );

@@ -15,9 +15,9 @@ export class supervisorRepository {
   //! Crear un chofer
   async createChofer(nombre:string, email:string, password:string, rol_id:number) {
     const { rows } = await pool.query(`
-      INSERT INTO usuarios (nombre, email, password, rol_id)
+      INSERT INTO usuarios (nombre, email, password_hash, rol_id)
       VALUES ($1, $2, $3, $4)
-      RETURNING id, nombre, email, telefono, dni, rol_id;
+      RETURNING id, nombre, email, rol_id;
     `, [nombre, email, password, rol_id]);
     return rows[0];
   }
@@ -28,10 +28,10 @@ export class supervisorRepository {
       UPDATE usuarios
       SET nombre = COALESCE($1, nombre),
           email = COALESCE($2, email),
-          password = COALESCE($3, password),
+          password_hash = COALESCE($3, password_hash),
           rol_id = COALESCE($4, rol_id)
       WHERE id = $5 AND rol_id = 2
-      RETURNING id, nombre, apellido, email, telefono, dni, rol_id;
+      RETURNING id, nombre, email,rol_id;
     `, [nombre, email, password, rol_id, id_user]);
     return rows[0] || null;
   }
@@ -41,7 +41,7 @@ export class supervisorRepository {
     const { rows } = await pool.query(`
       DELETE FROM usuarios
       WHERE id = $1 AND rol_id = 2
-      RETURNING id, nombre, apellido, email;
+      RETURNING id, nombre, email;
     `, [id_user]);
     return rows[0] || null;
   }
