@@ -21,7 +21,29 @@ Los servicios publican eventos (producers) y otros servicios los consumen (consu
 
 EVENT-DRIVEN/
 - CrudService/
+  - src/
+    - controllers/
+    - db/
+    - env/
+    - interface/
+    - kafka/
+    - middleware/
+    - repositories/
+    - routes/
+    - services/
+    - utils/
+  - app.ts
 - NotificationsService/
+  - src/
+    - controllers/
+    - db/
+    - env/
+    - kafka/
+    - repositories/
+    - routes/
+    - services/
+    - utils/
+  - app.ts
 - UserService/
   - src/
     - controllers/
@@ -34,7 +56,7 @@ EVENT-DRIVEN/
     - routes/
     - services/
     - utils/
-    - app.ts
+  - app.ts
   - .env
   - docker-compose.yml
   - package.json
@@ -81,17 +103,16 @@ await kafkaConsumer.run({
 
 Usando Docker Compose (suponiendo `docker-compose.yml` presente en la raíz de cada servicio o en la raíz monorepo):
 
-```powershell
+```bash
 docker compose up --build
 ```
 
 Esto suele levantar al menos:
 
 - Kafka
-- ZooKeeper (si la imagen lo requiere)
 - Cada microservicio definido en el compose
 
-Si prefieres ejecutar localmente sin Docker, arranca Kafka y ejecuta cada servicio con `npm run dev` o `npx ts-node` según tu configuración.
+Si prefieres ejecutar localmente sin Docker, arranca Kafka y ejecuta cada servicio con `npm run dev` o `npx ts-node`.
 
 ## Requisitos y suposiciones
 
@@ -114,24 +135,3 @@ Si prefieres ejecutar localmente sin Docker, arranca Kafka y ejecuta cada servic
 - Implementar reintentos y backoff en consumers.
 - Asegurar comunicación entre servicios (mTLS / JWT según necesidad).
 
-## Contribuir
-
-- Añade tests unitarios y de integración (especialmente para producers y consumers).
-- Documenta los contratos de los mensajes (schema registry o JSON Schema).
-- Mantén las configuraciones (topics, grupos de consumer) en variables de entorno.
-
-## Licencia
-
-Incluye un archivo `LICENSE` con la licencia adecuada (por ejemplo MIT) si quieres permitir uso público.
-
-## Contacto
-
-Si quieres que adapte este README a comandos concretos (por ejemplo `package.json`) o que incluya ejemplos curl/Postman, compártemelos y lo actualizo.
-
----
-
-He dejado el README orientado a ser claro y práctico: si quieres, lo adapto a:
-
-- incluir scripts concretos leyendo tu `package.json`,
-- añadir ejemplos curl/Postman, o
-- generar un `CONTRIBUTING.md` y `LICENSE`.
