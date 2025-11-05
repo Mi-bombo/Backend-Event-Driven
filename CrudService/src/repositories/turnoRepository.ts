@@ -37,15 +37,19 @@ export class turnoRepository {
   }
 
   //! Actualizar turno de un chofer en un día específico
-  async updateTurnoChofer(id_user:number, dia:string, id_turno:number) {
+  async updateTurnoChofer(id: number, id_turno: number, dia: string) {
+    console.log("Actualizando turno:", { id, id_turno, dia });
     const { rows } = await pool.query(`
       UPDATE turno_por_dia
-      SET id_turno = $1
-      WHERE id_user = $2 AND dia = $3
+      SET id_turno = $1, dia = $2
+      WHERE id = $3
       RETURNING *;
-    `, [id_turno, id_user, dia]);
+    `, [id_turno, dia, id]);
+    console.log("Resultado update:", rows);
     return rows[0] || null;
   }
+
+
 
   //! Eliminar turno asignado
   async deleteTurnoPorDia(id:number) {
