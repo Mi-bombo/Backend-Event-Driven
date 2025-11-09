@@ -1,5 +1,9 @@
 import { usersService } from "../services/user.service";
 import { Request, Response } from "express";
+import { initSSE } from "../services/sse.Service";
+import jwt from "jsonwebtoken";
+import { SECRET_KEY } from "../env/env";
+import { pool } from "../db/db";
 
 export class userControllers {
   private services: usersService;
@@ -31,8 +35,9 @@ export class userControllers {
       if (platform === "web") {
         res.cookie("token", userData.token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
+          secure: true,
           maxAge: 3600000,
+          sameSite: "none",
         });
       }
 
@@ -63,8 +68,11 @@ export class userControllers {
 
   getSession = async (req: Request, res: Response): Promise<Response> => {
     try {
+      const token = req.cookies.token;
       const user = req.user;
-      return res.status(200).json({ msg: "Te haz autenticado", User: user });
+      return res
+        .status(200)
+        .json({ msg: "Te haz autenticado", User: user, token: token });
     } catch (error) {
       return res.status(500).json({ msg: "Hubo un error inesperado." });
     }
@@ -79,6 +87,41 @@ export class userControllers {
       return res.status(200).json({ message: "Cierre de sesión exitoso" });
     } catch (error) {
       res.status(500).json({ message: "Error al cerrar sesión" });
+    }
+  };
+
+  sseConnect = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const token = req.query?.token as string;
+      if (!token) {
+        res.status(401).end();
+        return;
+      }
+
+      let payload: any;
+      try {
+        payload = jwt.verify(token, SECRET_KEY!);
+      } catch (err) {
+        console.error("Token inválido:", err);
+        res.status(401).end();
+        return;
+      }
+
+      // Obtener userId del payload
+      const userId = payload.userId || payload.id || payload.userID;
+      if (!userId) {
+        res.status(401).end();
+        return;
+      }
+
+      // Agregamos el userId al request para initSSE
+      (req as any).user = { id: userId };
+
+      // Inicia la conexión SSE
+      initSSE(req, res);
+    } catch (error) {
+      console.error("Error SSE:", error);
+      res.status(403).end();
     }
   };
 }

@@ -6,10 +6,19 @@ import cookieParser from "cookie-parser";
 import { PORT } from "./env/env";
 import { connectProducer } from "./kafka/producer";
 import { authUserRoute } from "./routes/userRoute";
+import { startKafkaSSEConsumer } from "./kafka/consumer";
+import { ensureKafkaTopics } from "./kafka/topicManager";
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:5174", credentials: true }));
+app.use(
+  cors({
+    origin: ["http://127.0.0.1:5173", "http://localhost:5173"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
+
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
@@ -17,7 +26,22 @@ app.use(helmet());
 
 app.use("/auth", authUserRoute);
 
+async function bootstrapKafka() {
+  try {
+    await ensureKafkaTopics([
+      { topic: "turno-creado" },
+      { topic: "turno-actualizado" },
+    ]);
+
+    await connectProducer();
+    await startKafkaSSEConsumer();
+    console.log("Kafka listo para enviar/recibir eventos");
+  } catch (error) {
+    console.error("Error inicializando Kafka:", error);
+  }
+}
+
 app.listen(PORT, () => {
-  connectProducer();
+  void bootstrapKafka();
   console.log(`Server corriendo en el puerto: ${PORT}🚀`);
 });
