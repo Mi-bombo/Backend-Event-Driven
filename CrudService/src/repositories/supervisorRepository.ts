@@ -1,8 +1,6 @@
 import { pool } from "../db/db";
 
 export class supervisorRepository {
-    
-  //! Obtener un chofer por ID
   async getChoferById(id_user:number) {
     const { rows } = await pool.query(`
       SELECT id, nombre, apellido, email, telefono, dni, rol_id
@@ -12,31 +10,35 @@ export class supervisorRepository {
     return rows[0] || null;
   }
 
-  //! Crear un chofer
-  async createChofer(nombre:string, email:string, password:string, rol_id:number) {
+  async createChofer(nombre:string, email:string, passwordHash:string, rol_id:number) {
     const { rows } = await pool.query(`
       INSERT INTO usuarios (nombre, email, password_hash, rol_id)
       VALUES ($1, $2, $3, $4)
       RETURNING id, nombre, email, rol_id;
-    `, [nombre, email, password, rol_id]);
+    `, [nombre, email, passwordHash, rol_id]);
     return rows[0];
   }
 
-  //! Actualizar un chofer
-  async updateChofer(nombre:string, email:string, password:string, rol_id:number, id_user:number) {
+  // 👇 ACEPTA null para no pisar campos cuando no hay cambios
+  async updateChofer(
+    nombre: string | null,
+    email: string | null,
+    passwordHash: string | null,
+    rol_id: number | null,
+    id_user: number
+  ) {
     const { rows } = await pool.query(`
       UPDATE usuarios
-      SET nombre = COALESCE($1, nombre),
-          email = COALESCE($2, email),
+      SET nombre        = COALESCE($1, nombre),
+          email         = COALESCE($2, email),
           password_hash = COALESCE($3, password_hash),
-          rol_id = COALESCE($4, rol_id)
+          rol_id        = COALESCE($4, rol_id)
       WHERE id = $5 AND rol_id = 2
-      RETURNING id, nombre, email,rol_id;
-    `, [nombre, email, password, rol_id, id_user]);
+      RETURNING id, nombre, email, rol_id;
+    `, [nombre, email, passwordHash, rol_id, id_user]);
     return rows[0] || null;
   }
 
-  //! Eliminar un chofer
   async deleteChofer(id_user:number) {
     const { rows } = await pool.query(`
       DELETE FROM usuarios
@@ -46,14 +48,13 @@ export class supervisorRepository {
     return rows[0] || null;
   }
 
-//! Obtener todos los choferes
   async getAllChoferes() {
-  const { rows } = await pool.query(`
-    SELECT *
-    FROM usuarios
-    WHERE rol_id = 2
-    ORDER BY nombre;
-  `);
-  return rows;
-}
+    const { rows } = await pool.query(`
+      SELECT id, nombre, email, rol_id
+      FROM usuarios
+      WHERE rol_id = 2
+      ORDER BY nombre;
+    `);
+    return rows;
+  }
 }

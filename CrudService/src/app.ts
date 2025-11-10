@@ -11,7 +11,7 @@ import { supervisorRouter } from './routes/supervisorRoute'
 const app = express()
 
 app.use(cors({
-    origin: ['http://127.0.0.1:5500', 'http://localhost:5500'],
+    origin: ['http://127.0.0.1:5173', 'http://localhost:5173'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   }));
