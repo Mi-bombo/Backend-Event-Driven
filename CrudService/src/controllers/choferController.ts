@@ -9,11 +9,11 @@ export class choferController {
 
     getMisTurnos = async (req: Request, res: Response): Promise<Response | void> => {
         try {
-           const authHeader = req.headers['authorization'];
+            if (!req.user || !req.user.id) {
+                return res.status(401).json({ error: "Usuario no autenticado" });
+            }
 
-            const token = authHeader?.split(' ')[1];
-
-            const result = await this.choferService.getMisTurnos(token!)
+            const result = await this.choferService.getMisTurnosByUserId(req.user.id);
             return res.status(200).json(result);
         } catch (error) {
             console.log(error);
