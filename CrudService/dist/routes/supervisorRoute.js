@@ -15,3 +15,9 @@ exports.supervisorRouter.post("/crear-chofer", supervisorCtrl.createChofer);
 exports.supervisorRouter.get("/chofer/:id", supervisorCtrl.getChoferById);
 exports.supervisorRouter.put("/actualizar-chofer/:id", supervisorCtrl.updateChofer);
 exports.supervisorRouter.delete("/eliminar-chofer/:id", supervisorCtrl.deleteChofer);
+// Rutas para asignación de líneas
+exports.supervisorRouter.post("/asignar-lineas/:id", supervisorCtrl.assignLineas);
+exports.supervisorRouter.get("/chofer/:id/lineas", supervisorCtrl.getLineasByChofer);
+// Debug: obtener fila cruda de usuario (dev-only)
+exports.supervisorRouter.get("/debug/usuario/:id", supervisorCtrl.debugGetUsuarioById);
+exports.supervisorRouter.get("/debug/usuario/:id/deps", supervisorCtrl.debugGetUsuarioDeps);

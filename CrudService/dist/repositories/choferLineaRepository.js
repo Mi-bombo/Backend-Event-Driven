@@ -13,7 +13,7 @@ const BASE_SELECT = `
     u.email AS chofer_email,
     l.nombre AS linea_nombre,
     l.estado AS linea_estado
-  FROM chofer_lineas cl
+  FROM chofer_linea cl
   JOIN usuarios u ON u.id = cl.chofer_id
   JOIN lineas l ON l.id = cl.linea_id
 `;
@@ -71,7 +71,7 @@ class ChoferLineaRepository {
         const { choferId, lineaId, estado, fechaAsignacion } = params;
         const { rows } = await db_1.pool.query(`
       WITH inserted AS (
-        INSERT INTO chofer_lineas (chofer_id, linea_id, estado, fecha_asignacion)
+        INSERT INTO chofer_linea (chofer_id, linea_id, estado, fecha_asignacion)
         VALUES ($1, $2, $3, COALESCE($4::timestamp, NOW()))
         RETURNING *
       )
@@ -96,7 +96,7 @@ class ChoferLineaRepository {
         const { id, lineaId, estado } = params;
         const { rows } = await db_1.pool.query(`
       WITH updated AS (
-        UPDATE chofer_lineas
+        UPDATE chofer_linea
         SET
           linea_id = COALESCE($2, linea_id),
           estado = COALESCE($3, estado)
@@ -123,7 +123,7 @@ class ChoferLineaRepository {
     async deleteAssignment(id) {
         const { rows } = await db_1.pool.query(`
       WITH deleted AS (
-        DELETE FROM chofer_lineas
+        DELETE FROM chofer_linea
         WHERE id = $1
         RETURNING *
       )

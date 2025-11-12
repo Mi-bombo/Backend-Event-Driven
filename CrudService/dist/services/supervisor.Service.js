@@ -63,6 +63,18 @@ class supervisorService {
             throw new Error("Chofer no encontrado");
         return ch;
     }
+    async assignLineas(id_user, lineas) {
+        if (!id_user)
+            throw new Error("Falta id del chofer.");
+        if (!Array.isArray(lineas))
+            throw new Error("Lineas inválidas.");
+        return this.supervisorRepo.assignLineasToChofer(id_user, lineas);
+    }
+    async getLineasByChofer(id_user) {
+        if (!id_user)
+            throw new Error("Falta id del chofer.");
+        return this.supervisorRepo.getLineasByChofer(id_user);
+    }
     async updateChofer(id, nombre, email, password) {
         if (!id)
             throw new Error("Falta id del chofer.");
@@ -75,10 +87,29 @@ class supervisorService {
     async deleteChofer(id) {
         if (!id)
             throw new Error("Falta id del chofer.");
+        // comprobar dependencias que impiden la eliminación
+        const turnosCount = await this.supervisorRepo.countTurnosByChofer(id).catch(() => 0);
+        const lineasCount = await this.supervisorRepo.countChoferLineasByChofer(id).catch(() => 0);
+        if ((turnosCount ?? 0) > 0 || (lineasCount ?? 0) > 0) {
+            const parts = [];
+            if ((turnosCount ?? 0) > 0)
+                parts.push(`${turnosCount} turno(s)`);
+            if ((lineasCount ?? 0) > 0)
+                parts.push(`${lineasCount} asignación(es) de línea`);
+            throw new Error(`El chofer tiene dependencias que impiden su eliminación: ${parts.join(", ")}. Elimine o reasigne primero.`);
+        }
         const del = await this.supervisorRepo.deleteChofer(id);
         if (!del)
-            throw new Error("No se pudo eliminar el chofer.");
+            throw new Error(`No se pudo eliminar el chofer con id ${id}. Puede que no exista o no sea rol 'chofer'.`);
         return del;
+    }
+    // Dev helper: obtener contadores de dependencias para un chofer
+    async getDependencyCounts(id) {
+        if (!id)
+            throw new Error("Falta id del chofer.");
+        const turnosCount = await this.supervisorRepo.countTurnosByChofer(id).catch(() => 0);
+        const lineasCount = await this.supervisorRepo.countChoferLineasByChofer(id).catch(() => 0);
+        return { turnosCount, lineasCount };
     }
 }
 exports.supervisorService = supervisorService;
