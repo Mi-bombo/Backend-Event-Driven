@@ -8,7 +8,6 @@ export class notifController {
         this.notifService = new NotificationsService ();
     }
 
-    //! Chicos, en los endpoints del front en el header pongan 'Authorization: Bearer <token>' para que funcione esto
     sendNotifications = async (req:Request, res:Response): Promise<Response | void> => {
         try {
             const {subject, message} = req.body
