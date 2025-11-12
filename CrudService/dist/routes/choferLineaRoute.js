@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.choferLineaRouter = void 0;
+const express_1 = require("express");
+const choferLineaController_1 = require("../controllers/choferLineaController");
+const controller = new choferLineaController_1.ChoferLineaController();
+exports.choferLineaRouter = (0, express_1.Router)();
+exports.choferLineaRouter.get("/", controller.list);
+exports.choferLineaRouter.get("/:id", controller.getById);
+exports.choferLineaRouter.post("/", controller.create);
+exports.choferLineaRouter.put("/:id", controller.update);
+exports.choferLineaRouter.delete("/:id", controller.delete);
