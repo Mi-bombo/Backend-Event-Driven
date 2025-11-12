@@ -90,8 +90,18 @@ export class supervisorService {
 
   async deleteChofer(id: number) {
     if (!id) throw new Error("Falta id del chofer.");
+    // comprobar dependencias que impiden la eliminación
+    const turnosCount = await this.supervisorRepo.countTurnosByChofer(id).catch(() => 0);
+    const lineasCount = await this.supervisorRepo.countChoferLineasByChofer(id).catch(() => 0);
+    if ((turnosCount ?? 0) > 0 || (lineasCount ?? 0) > 0) {
+      const parts: string[] = [];
+      if ((turnosCount ?? 0) > 0) parts.push(`${turnosCount} turno(s)`);
+      if ((lineasCount ?? 0) > 0) parts.push(`${lineasCount} asignación(es) de línea`);
+      throw new Error(`El chofer tiene dependencias que impiden su eliminación: ${parts.join(", ")}. Elimine o reasigne primero.`);
+    }
+
     const del = await this.supervisorRepo.deleteChofer(id);
-    if (!del) throw new Error("No se pudo eliminar el chofer.");
+    if (!del) throw new Error(`No se pudo eliminar el chofer con id ${id}. Puede que no exista o no sea rol 'chofer'.`);
     return del;
   }
 }

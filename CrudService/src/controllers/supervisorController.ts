@@ -121,11 +121,28 @@ export class supervisorController {
 
   deleteChofer = async (req: Request, res: Response) => {
     try {
-      const id = Number(req.params.id);
-      await svc.deleteChofer(id);
+      const idRaw = req.params.id;
+      console.log(`[supervisorController.deleteChofer] request params id=`, idRaw);
+      const id = Number(idRaw);
+      if (!id || Number.isNaN(id)) {
+        console.warn(`[supervisorController.deleteChofer] id inválido:`, idRaw);
+        return res.status(400).json({ error: "id inválido" });
+      }
+
+      const result = await svc.deleteChofer(id);
+      console.log(`[supervisorController.deleteChofer] eliminado:`, result);
       res.json({ ok: true });
     } catch (e:any) {
-      res.status(400).json({ error: e.message });
+      console.error("[supervisorController.deleteChofer] error:", e?.message ?? e, e?.stack ?? "");
+      const msg = e?.message ?? String(e);
+      if (msg.includes("Chofer no encontrado") || msg.includes("No se pudo eliminar el chofer")) {
+        return res.status(404).json({ error: msg });
+      }
+      if (msg.includes("impiden su eliminación") || msg.includes("dependencias")) {
+        // conflicto por claves foráneas / recursos relacionados
+        return res.status(409).json({ error: msg });
+      }
+      res.status(400).json({ error: msg });
     }
   };
 

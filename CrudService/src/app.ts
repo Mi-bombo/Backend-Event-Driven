@@ -8,6 +8,7 @@ import { choferRouter } from './routes/choferRoute'
 import { supervisorRouter } from './routes/supervisorRoute'
 import { lineaRutaRouter } from './routes/lineasRutasRoute'
 import { lineasRouter } from './routes/lineasRoute'
+import { choferLineaRouter } from './routes/choferLineaRoute'
 
 const app = express()
 
@@ -24,6 +25,7 @@ app.use('/chofer', choferRouter)
 app.use('/supervisor', supervisorRouter)
 app.use('/lineas', lineasRouter)
 app.use('/lineas', lineaRutaRouter)
+app.use('/chofer-lineas', choferLineaRouter)
 
 app.listen(PORT, () => {
     connectProducer()

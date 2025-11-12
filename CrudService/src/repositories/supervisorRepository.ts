@@ -85,4 +85,22 @@ export class supervisorRepository {
     `, [id_user]);
     return rows;
   }
+
+  async countTurnosByChofer(id_user: number) {
+    const { rows } = await pool.query(`
+      SELECT COUNT(*)::int AS cnt
+      FROM turno_por_dia
+      WHERE id_user = $1;
+    `, [id_user]);
+    return rows[0]?.cnt ?? 0;
+  }
+
+  async countChoferLineasByChofer(id_user: number) {
+    const { rows } = await pool.query(`
+      SELECT COUNT(*)::int AS cnt
+      FROM chofer_linea
+      WHERE chofer_id = $1;
+    `, [id_user]);
+    return rows[0]?.cnt ?? 0;
+  }
 }

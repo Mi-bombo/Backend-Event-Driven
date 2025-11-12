@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.supervisorRouter = void 0;
+const express_1 = require("express");
+const supervisorController_1 = require("../controllers/supervisorController");
+exports.supervisorRouter = (0, express_1.Router)();
+const supervisorCtrl = new supervisorController_1.supervisorController();
+exports.supervisorRouter.get("/turnos-asignados", supervisorCtrl.getAllTurnosAsignados);
+exports.supervisorRouter.post("/asignar-turno/:id", supervisorCtrl.createTurnoPorDia);
+exports.supervisorRouter.put("/actualizar-turno/:id", supervisorCtrl.updateTurnoChofer);
+exports.supervisorRouter.delete("/eliminar-turno/:id", supervisorCtrl.deleteTurnoPorDia);
+exports.supervisorRouter.get("/catalogo-turnos", supervisorCtrl.getCatalogoTurnos);
+exports.supervisorRouter.get("/choferes", supervisorCtrl.getAllChoferes);
+exports.supervisorRouter.post("/crear-chofer", supervisorCtrl.createChofer);
+exports.supervisorRouter.get("/chofer/:id", supervisorCtrl.getChoferById);
+exports.supervisorRouter.put("/actualizar-chofer/:id", supervisorCtrl.updateChofer);
+exports.supervisorRouter.delete("/eliminar-chofer/:id", supervisorCtrl.deleteChofer);
