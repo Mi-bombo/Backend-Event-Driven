@@ -56,4 +56,33 @@ export class supervisorRepository {
     `);
     return rows;
   }
+
+  async assignLineasToChofer(id_user:number, lineas:number[]) {
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      await client.query(`DELETE FROM chofer_linea WHERE chofer_id = $1`, [id_user]);
+      for (const lineaId of lineas) {
+        await client.query(`INSERT INTO chofer_linea (chofer_id, linea_id) VALUES ($1, $2)`, [id_user, lineaId]);
+      }
+      await client.query("COMMIT");
+      return true;
+    } catch (e:any) {
+      await client.query("ROLLBACK");
+      throw e;
+    } finally {
+      client.release();
+    }
+  }
+
+  async getLineasByChofer(id_user:number) {
+    const { rows } = await pool.query(`
+      SELECT l.id, l.nombre
+      FROM lineas l
+      JOIN chofer_linea cl ON cl.linea_id = l.id
+      WHERE cl.chofer_id = $1
+      ORDER BY l.nombre;
+    `, [id_user]);
+    return rows;
+  }
 }

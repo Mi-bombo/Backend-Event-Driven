@@ -128,4 +128,42 @@ export class supervisorController {
       res.status(400).json({ error: e.message });
     }
   };
+
+  // Asignar líneas a chofer y emitir evento Kafka
+  assignLineas = async (req: Request, res: Response) => {
+    try {
+      const id_user = Number(req.params.id);
+      const { lineas } = req.body || {};
+      if (!Array.isArray(lineas)) return res.status(400).json({ error: "Se espera campo 'lineas' como arreglo de ids" });
+
+      await svc.assignLineas(id_user, lineas.map((l: any) => Number(l)));
+
+      // Emitir evento en caliente para notificaciones en la arquitectura event-driven
+      try {
+        const chofer = await svc.getChoferById(id_user).catch(() => null);
+        const assigned = await svc.getLineasByChofer(id_user).catch(() => []);
+        await sendEvent("lineas-asignadas", {
+          chofer: chofer ? { id: chofer.id, nombre: chofer.nombre, email: chofer.email } : { id: id_user },
+          lineas: assigned,
+          timestamp: new Date().toISOString(),
+        });
+      } catch (evErr) {
+        console.error("Error al enviar evento de lineas-asignadas:", evErr);
+      }
+
+      res.json({ ok: true });
+    } catch (e:any) {
+      res.status(400).json({ error: e.message });
+    }
+  };
+
+  getLineasByChofer = async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.params.id);
+      const data = await svc.getLineasByChofer(id);
+      res.json(data);
+    } catch (e:any) {
+      res.status(400).json({ error: e.message });
+    }
+  };
 }

@@ -63,6 +63,17 @@ export class supervisorService {
     return ch;
   }
 
+  async assignLineas(id_user:number, lineas:number[]) {
+    if (!id_user) throw new Error("Falta id del chofer.");
+    if (!Array.isArray(lineas)) throw new Error("Lineas inválidas.");
+    return this.supervisorRepo.assignLineasToChofer(id_user, lineas);
+  }
+
+  async getLineasByChofer(id_user:number) {
+    if (!id_user) throw new Error("Falta id del chofer.");
+    return this.supervisorRepo.getLineasByChofer(id_user);
+  }
+
   async updateChofer(id: number, nombre?: string, email?: string, password?: string) {
     if (!id) throw new Error("Falta id del chofer.");
     const hash = password ? await bcrypt.hash(password, 10) : null;

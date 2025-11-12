@@ -15,3 +15,6 @@ supervisorRouter.post("/crear-chofer", supervisorCtrl.createChofer);
 supervisorRouter.get("/chofer/:id", supervisorCtrl.getChoferById);
 supervisorRouter.put("/actualizar-chofer/:id", supervisorCtrl.updateChofer);
 supervisorRouter.delete("/eliminar-chofer/:id", supervisorCtrl.deleteChofer);
+// Rutas para asignación de líneas
+supervisorRouter.post("/asignar-lineas/:id", supervisorCtrl.assignLineas);
+supervisorRouter.get("/chofer/:id/lineas", supervisorCtrl.getLineasByChofer);
